@@ -1,0 +1,9 @@
+# This file ensures the screenshots directory is tracked by git
+# Add your screenshot images here with the following names:
+# - main-screen.png
+# - add-job-modal.png
+# - edit-job-modal.png
+# - job-card-details.png
+# - status-badges.png
+# - loading-screen.png
+# - empty-state.png

@@ -210,15 +210,15 @@ npm run clean
 ## 📱 Screenshots
 
 ### Main Job List Screen
-![Main Screen](screenshots/main-screen.png)
+![Main Screen](screenshots/Main.png)
 *Clean, modern job list with status badges and interactive cards*
 
 ### Add New Job Modal
-![Add Job Screen](screenshots/add-job-modal.png)
+![Add Job Screen](screenshots/AddNewJobDetails.png)
 *Comprehensive form for adding new job applications with validation*
 
 ### Edit Job Modal
-![Edit Job Screen](screenshots/edit-job-modal.png)
+![Edit Job Screen](screenshots/edit.png)
 *Full-featured editing interface with change tracking*
 
 ### Job Card Details

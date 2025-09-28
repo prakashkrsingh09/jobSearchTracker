@@ -2,31 +2,10 @@
 
 A modern React Native mobile application for tracking job applications with Firebase Firestore integration, featuring a beautiful UI and comprehensive job management capabilities.
 
-## 📋 Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Development](#development)
-- [Screenshots](#screenshots)
-- [Contributing](#contributing)
-- [License](#license)
-
 ## 🎯 Overview
-
 Job Search Tracker is a cross-platform mobile application built with React Native that helps users efficiently track their job applications. The app features a modern, interactive UI with Firebase Firestore backend integration for real-time data synchronization.
 
 ## ✨ Features
-
-### 🎨 **Modern UI/UX**
-- **Beautiful Job Cards**: Clean, card-based design with shadows and rounded corners
-- **Status Badges**: Color-coded status indicators (Applied, Interview, Offer, Rejected)
-- **Interactive Elements**: Smooth animations and touch feedback
-- **Pull-to-Refresh**: Refresh data with intuitive pull gesture
-- **Loading States**: Professional loading screens with progress indicators
 
 ### 📊 **Job Management**
 - **Add New Jobs**: Comprehensive form with validation for all job fields
@@ -50,46 +29,6 @@ Job Search Tracker is a cross-platform mobile application built with React Nativ
 - **Change Tracking**: Tracks what fields were modified during edits
 - **Error Handling**: Comprehensive error handling with user-friendly messages
 - **Data Integrity**: Consistent data structure across all operations
-
-## 🛠️ Tech Stack
-
-- **Framework**: React Native 0.81.4
-- **Language**: TypeScript 5.8.3
-- **Backend**: Firebase Firestore
-- **Authentication**: Firebase Auth (ready for implementation)
-- **State Management**: React Hooks (useState, useEffect)
-- **Styling**: StyleSheet with modern design patterns
-- **Navigation**: React Navigation (ready for implementation)
-- **Platform**: iOS & Android
-
-## 📁 Project Structure
-
-```
-jobSearchTracker/
-├── src/                           # Source code directory
-│   ├── components/                # Reusable UI components
-│   │   ├── AddJobModal.tsx        # Modal for adding new jobs
-│   │   ├── EditJobModal.tsx       # Modal for editing jobs
-│   │   ├── ErrorDisplay.tsx       # Error display component
-│   │   ├── LoadingSpinner.tsx     # Loading spinner component
-│   │   └── index.ts              # Component exports
-│   ├── firebase/                  # Firebase configuration
-│   │   └── config.js             # Firestore setup
-│   ├── screens/                   # Screen components
-│   │   └── JobListScreen.js      # Main job listing screen
-│   ├── services/                  # API and data services
-│   │   └── jobService.js         # Job CRUD operations
-│   ├── types/                     # TypeScript type definitions
-│   │   ├── env.d.ts              # Environment types
-│   │   └── index.ts              # Type exports
-│   └── utils/                     # Utility functions
-│       └── constants.ts          # App constants
-├── android/                       # Android-specific files
-├── ios/                          # iOS-specific files
-├── App.tsx                       # Main app component
-├── package.json                  # Dependencies and scripts
-└── README.md                     # This file
-```
 
 ## 🚀 Installation
 
@@ -148,21 +87,6 @@ jobSearchTracker/
    - Update `src/firebase/config.js` with your project configuration
    - Set up Firestore collections structure
 
-### Environment Variables
-
-Create a `.env` file in the root directory:
-
-```env
-FIREBASE_API_KEY=your_api_key_here
-FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-FIREBASE_PROJECT_ID=your_project_id
-FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-FIREBASE_APP_ID=your_app_id
-```
-
-## 🛠️ Development
-
 ### Available Scripts
 
 ```bash
@@ -185,14 +109,6 @@ npm run lint
 npm run clean
 ```
 
-### Code Structure
-
-- **Components**: Reusable UI components with TypeScript
-- **Screens**: Main application screens
-- **Services**: Data layer with Firebase integration
-- **Types**: TypeScript interfaces and type definitions
-- **Utils**: Helper functions and constants
-
 ### Key Features Implementation
 
 #### Job Management
@@ -210,67 +126,16 @@ npm run clean
 ## 📱 Screenshots
 
 ### Main Job List Screen
-![Main Screen](screenshots/Main.png)
+![Main Screen](./src/screenshots/Main.png)
 *Clean, modern job list with status badges and interactive cards*
 
 ### Add New Job Modal
-![Add Job Screen](screenshots/AddNewJobDetails.png)
+![Add Job Screen](./src/screenshots//AddNewJobDetails.png)
 *Comprehensive form for adding new job applications with validation*
 
 ### Edit Job Modal
-![Edit Job Screen](screenshots/edit.png)
+![Edit Job Screen](./src/screenshots/edit.png)
 *Full-featured editing interface with change tracking*
-
-### Job Card Details
-![Job Card](screenshots/job-card-details.png)
-*Detailed job information with placeholders for missing data*
-
-### Status Indicators
-![Status Badges](screenshots/status-badges.png)
-*Color-coded status system: Applied (Blue), Interview (Orange), Offer (Green), Rejected (Red)*
-
-### Loading States
-![Loading Screen](screenshots/loading-screen.png)
-*Professional loading interface with progress indicators*
-
-### Empty State
-![Empty State](screenshots/empty-state.png)
-*Clean empty state when no jobs are available*
-
----
-
-**Note**: To add your own screenshots:
-1. Take screenshots of your app running on device/emulator
-2. Save them in the `screenshots/` directory
-3. Name them according to the references above
-4. Recommended format: PNG, 1080x1920 or similar mobile resolution
-
-## 🔧 Customization
-
-### Adding New Fields
-1. Update the job data interface in `types/index.ts`
-2. Add field to the modal forms
-3. Update the display components
-4. Modify Firestore schema
-
-### Styling
-- Modify `StyleSheet` objects in components
-- Update color scheme in constants
-- Customize status badge colors
-- Adjust spacing and typography
-
-### Firebase Rules
-```javascript
-// Example Firestore security rules
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /jobs/{document} {
-      allow read, write: if request.auth != null;
-    }
-  }
-}
-```
 
 ## 🚀 Deployment
 
@@ -284,20 +149,6 @@ service cloud.firestore {
 2. Upload to App Store Connect
 3. Configure Firebase for production
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Development Guidelines
-- Follow TypeScript best practices
-- Write meaningful commit messages
-- Test on both iOS and Android
-- Update documentation for new features
-
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -310,7 +161,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-For support, email your-email@example.com or create an issue in the repository.
+For support, 
+- Email prakashkumarsingh1994@outlook.com
+- Mobile +91-7903239967
+- create an issue in the repository.
 
 ---
 

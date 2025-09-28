@@ -9,6 +9,7 @@ import {
   RefreshControl,
   StatusBar,
   SafeAreaView,
+  ActivityIndicator,
 } from 'react-native';
 import {
   deleteJobApplication,
@@ -33,7 +34,7 @@ const JobListScreen = () => {
       } else {
         setLoading(true);
       }
-      
+
       const jobList = await getJobApplications();
       console.log('jobList : ', jobList);
       setJobs(jobList);
@@ -53,30 +54,30 @@ const JobListScreen = () => {
     loadJobs();
   }, []);
 
-  if (loading) {
+  if (!loading) {
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor="#007AFF" />
         <View style={styles.loadingContainer}>
           <View style={styles.loadingCard}>
-            <Text style={styles.loadingText}>📋</Text>
+            <ActivityIndicator
+              size="large"
+              animating={true}
+              hidesWhenStopped={true}
+              style={styles.loadingText}
+              color={'#007AFF'}
+            />
+            {/* <Text style={styles.loadingText}>📋</Text> */}
             <Text style={styles.loadingTitle}>Loading Job Applications</Text>
-            <Text style={styles.loadingSubtitle}>Please wait while we fetch your data...</Text>
+            <Text style={styles.loadingSubtitle}>
+              Please wait while we fetch your data...
+            </Text>
           </View>
         </View>
       </SafeAreaView>
     );
   }
 
-  const handleDataChange = async (rowIndex, columnIndex, newValue) => {
-    try {
-      // await syncService.updateCell('Sheet2', rowIndex, columnIndex, newValue);
-      // updateJobApplication(rowIndex, newValue);
-    } catch (cellUpdateError) {
-      console.error('❌ Error updating cell:', cellUpdateError);
-      throw cellUpdateError;
-    }
-  };
 
   const handleRowDelete = async jobId => {
     Alert.alert(
@@ -95,16 +96,19 @@ const JobListScreen = () => {
               console.log('Deleting job ID:', jobId);
               await deleteJobApplication(jobId);
               console.log('Job deleted successfully');
-              
+
               // Reload jobs after deletion
               await loadJobs();
             } catch (rowDeleteError) {
               console.error('❌ Error deleting row:', rowDeleteError);
-              Alert.alert('Error', 'Failed to delete job application. Please try again.');
+              Alert.alert(
+                'Error',
+                'Failed to delete job application. Please try again.',
+              );
             }
           },
         },
-      ]
+      ],
     );
   };
 
@@ -115,11 +119,8 @@ const JobListScreen = () => {
 
   const handleModalSave = async (jobId, changes) => {
     try {
-      console.log('Updating job ID:', jobId);
-      console.log('Changes:', changes);
-      
+
       await updateJobApplication(jobId, changes);
-      
       // Reload jobs after update
       await loadJobs();
     } catch (error) {
@@ -140,13 +141,9 @@ const JobListScreen = () => {
     setAddModalVisible(true);
   };
 
-  const handleAddJobSave = async (jobData) => {
+  const handleAddJobSave = async jobData => {
     try {
-      console.log('Adding new job:', jobData);
       await addJobApplication(jobData);
-      console.log('Job added successfully');
-      
-      // Reload jobs after adding
       await loadJobs();
     } catch (error) {
       console.error('Failed to add job:', error);
@@ -160,7 +157,7 @@ const JobListScreen = () => {
     setAddModalVisible(false);
   };
 
-  const getStatusStyle = (status) => {
+  const getStatusStyle = status => {
     // Handle different data types - convert to string safely
     let statusString = '';
     if (typeof status === 'string') {
@@ -171,16 +168,28 @@ const JobListScreen = () => {
     } else if (status !== null && status !== undefined) {
       statusString = String(status);
     }
-    
+
     const statusLower = statusString.toLowerCase();
-    
-    if (statusLower.includes('interview') || statusLower.includes('scheduled')) {
+
+    if (
+      statusLower.includes('interview') ||
+      statusLower.includes('scheduled')
+    ) {
       return styles.statusInterview;
-    } else if (statusLower.includes('offer') || statusLower.includes('accepted')) {
+    } else if (
+      statusLower.includes('offer') ||
+      statusLower.includes('accepted')
+    ) {
       return styles.statusOffer;
-    } else if (statusLower.includes('rejected') || statusLower.includes('declined')) {
+    } else if (
+      statusLower.includes('rejected') ||
+      statusLower.includes('declined')
+    ) {
       return styles.statusRejected;
-    } else if (statusLower.includes('applied') || statusLower.includes('pending')) {
+    } else if (
+      statusLower.includes('applied') ||
+      statusLower.includes('pending')
+    ) {
       return styles.statusApplied;
     } else {
       return styles.statusDefault;
@@ -190,12 +199,14 @@ const JobListScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#007AFF" />
-      
+
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <Text style={styles.headerTitle}>Job Applications</Text>
-          <Text style={styles.headerSubtitle}>{jobs.length} applications tracked</Text>
+          <Text style={styles.headerSubtitle}>
+            {jobs.length} applications tracked
+          </Text>
         </View>
         <TouchableOpacity style={styles.addButtonHeader} onPress={handleAddJob}>
           <Text style={styles.addButtonHeaderText}>+</Text>
@@ -228,12 +239,17 @@ const JobListScreen = () => {
                     {item.job_title || 'Job Title Not Provided'}
                   </Text>
                   <View style={styles.statusContainer}>
-                    <View style={[styles.statusBadge, getStatusStyle(item.job_application_status)]}>
+                    <View
+                      style={[
+                        styles.statusBadge,
+                        getStatusStyle(item.job_application_status),
+                      ]}
+                    >
                       <Text style={styles.statusText}>
-                        {typeof item.job_application_status === 'string' 
-                          ? item.job_application_status 
-                          : item.job_application_status?.toString() || 'Applied'
-                        }
+                        {typeof item.job_application_status === 'string'
+                          ? item.job_application_status
+                          : item.job_application_status?.toString() ||
+                            'Applied'}
                       </Text>
                     </View>
                     <Text style={styles.locationText}>
@@ -256,56 +272,67 @@ const JobListScreen = () => {
                   </TouchableOpacity>
                 </View>
               </View>
-              
+
               {/* Job Details */}
               <View style={styles.jobDetails}>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>Applied:</Text>
-                  <Text style={[
-                    styles.detailValue,
-                    !item.applied_date && styles.placeholderText
-                  ]}>
-                    {item.applied_date 
-                      ? (item.applied_date._seconds 
-                          ? new Date(item.applied_date._seconds * 1000).toLocaleDateString()
-                          : item.applied_date)
-                      : 'Not specified'
-                    }
+                  <Text
+                    style={[
+                      styles.detailValue,
+                      !item.applied_date && styles.placeholderText,
+                    ]}
+                  >
+                    {item.applied_date
+                      ? item.applied_date._seconds
+                        ? new Date(
+                            item.applied_date._seconds * 1000,
+                          ).toLocaleDateString()
+                        : item.applied_date
+                      : 'Not specified'}
                   </Text>
                 </View>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>HR Contact:</Text>
-                  <Text style={[
-                    styles.detailValue,
-                    !item.hr_name && styles.placeholderText
-                  ]}>
+                  <Text
+                    style={[
+                      styles.detailValue,
+                      !item.hr_name && styles.placeholderText,
+                    ]}
+                  >
                     {item.hr_name || 'Not provided'}
                   </Text>
                 </View>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>Platform:</Text>
-                  <Text style={[
-                    styles.detailValue,
-                    !item.application_platform && styles.placeholderText
-                  ]}>
+                  <Text
+                    style={[
+                      styles.detailValue,
+                      !item.application_platform && styles.placeholderText,
+                    ]}
+                  >
                     {item.application_platform || 'Not specified'}
                   </Text>
                 </View>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>Referred By:</Text>
-                  <Text style={[
-                    styles.detailValue,
-                    !item.referred_by && styles.placeholderText
-                  ]}>
+                  <Text
+                    style={[
+                      styles.detailValue,
+                      !item.referred_by && styles.placeholderText,
+                    ]}
+                  >
                     {item.referred_by || 'Not specified'}
                   </Text>
                 </View>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>Salary:</Text>
-                  <Text style={[
-                    styles.detailValue,
-                    !item.salary_offered && styles.placeholderText
-                  ]}>
+                  <Text
+                    style={[
+                      styles.detailValue,
+                      !item.salary_offered && styles.placeholderText,
+                    ]}
+                  >
                     {item.salary_offered || 'Not disclosed'}
                   </Text>
                 </View>
@@ -341,7 +368,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#007AFF',
   },
   loadingCard: {
     backgroundColor: '#fff',

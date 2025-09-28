@@ -4,3 +4,4 @@ export { default as ErrorDisplay } from './ErrorDisplay';
 export { default as DataTable } from './DataTable';
 export { default as EditJobModal } from './EditJobModal';
 export { default as AddJobModal } from './AddJobModal';
+export { default as SplashScreen } from './SplashScreen';

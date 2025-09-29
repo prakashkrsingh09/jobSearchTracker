@@ -11,6 +11,7 @@ import {
   SafeAreaView,
   ActivityIndicator,
 } from 'react-native';
+import { firebaseAuth } from '../firebase/config';
 import {
   deleteJobApplication,
   getJobApplications,
@@ -210,6 +211,9 @@ const JobListScreen = () => {
         </View>
         <TouchableOpacity style={styles.addButtonHeader} onPress={handleAddJob}>
           <Text style={styles.addButtonHeaderText}>+</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.addButtonHeader, { marginLeft: 8 }]} onPress={() => firebaseAuth.signOut()}>
+          <Text style={styles.addButtonHeaderText}>⎋</Text>
         </TouchableOpacity>
       </View>
 

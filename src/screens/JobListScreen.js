@@ -54,7 +54,7 @@ const JobListScreen = () => {
     loadJobs();
   }, []);
 
-  if (!loading) {
+  if (loading) {
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor="#007AFF" />
@@ -382,7 +382,6 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   loadingText: {
-    fontSize: 48,
     marginBottom: 16,
   },
   loadingTitle: {

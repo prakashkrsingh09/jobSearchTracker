@@ -38,10 +38,3 @@ export const SplashConfigurations = {
     duration: 2000,
   },
 };
-
-/*
-<SplashScreen
-  onFinish={handleSplashFinish}
-  {...SplashConfigurations.default}
-/>
-*/

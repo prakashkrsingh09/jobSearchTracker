@@ -28,11 +28,11 @@ export const getConfig = () => {
       APP_NAME: env.APP_NAME || CONFIG.APP_NAME,
       APP_VERSION: env.APP_VERSION || CONFIG.APP_VERSION,
     };
-    console.log('✅ Configuration loaded from environment variables:', config);
+    console.log('Configuration loaded from environment variables:', config);
     return config;
   } catch (error) {
-    console.log('⚠️ Environment variables not available, using fallback constants');
-    console.log('📋 Fallback config:', CONFIG);
+    console.log('Environment variables not available, using fallback constants');
+    console.log('Fallback config:', CONFIG);
     return CONFIG;
   }
 };

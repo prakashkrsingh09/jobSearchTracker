@@ -1,12 +1,17 @@
-import { jobsCollection } from '../firebase/config';
+import { getUserJobsCollection, getCurrentUser } from '../firebase/config';
 import firestore from '@react-native-firebase/firestore';
 
 // Add new job application
 export const addJobApplication = async (jobData) => {
   try {
-    const docRef = await jobsCollection.add({
+    const userJobsCollection = getUserJobsCollection();
+    const currentUser = getCurrentUser();
+    if (!currentUser) throw new Error('User not authenticated');
+    const docRef = await userJobsCollection.add({
       ...jobData,
+      user_id: currentUser.uid,
       created_at: firestore.FieldValue.serverTimestamp(),
+      updated_at: firestore.FieldValue.serverTimestamp(),
     });
     return docRef.id;
   } catch (error) {
@@ -18,7 +23,8 @@ export const addJobApplication = async (jobData) => {
 // Get all job applications
 export const getJobApplications = async () => {
   try {
-    const snapshot = await jobsCollection.orderBy('created_at', 'desc').get();
+    const userJobsCollection = getUserJobsCollection();
+    const snapshot = await userJobsCollection.orderBy('created_at', 'desc').get();
     return snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
@@ -32,6 +38,7 @@ export const getJobApplications = async () => {
 // Update job application
 export const updateJobApplication = async (jobId, changes) => {
   try {
+    const userJobsCollection = getUserJobsCollection();
     // Handle both old format (object) and new format (changes array)
     if (Array.isArray(changes)) {
       // New format: array of changes with field, previousValue, newValue
@@ -45,7 +52,7 @@ export const updateJobApplication = async (jobId, changes) => {
       updateData.updated_at = firestore.FieldValue.serverTimestamp();
       
       console.log('Updating job with data:', updateData);
-      await jobsCollection.doc(jobId).update(updateData);
+      await userJobsCollection.doc(jobId).update(updateData);
     } else {
       // Old format: direct object update (for backward compatibility)
       const updateData = {
@@ -54,7 +61,7 @@ export const updateJobApplication = async (jobId, changes) => {
       };
       
       console.log('Updating job with data:', updateData);
-      await jobsCollection.doc(jobId).update(updateData);
+      await userJobsCollection.doc(jobId).update(updateData);
     }
   } catch (error) {
     console.error('Error updating job:', error);
@@ -65,7 +72,8 @@ export const updateJobApplication = async (jobId, changes) => {
 // Delete job application
 export const deleteJobApplication = async (jobId) => {
   try {
-    await jobsCollection.doc(jobId).delete();
+    const userJobsCollection = getUserJobsCollection();
+    await userJobsCollection.doc(jobId).delete();
   } catch (error) {
     console.error('Error deleting job:', error);
     throw error;

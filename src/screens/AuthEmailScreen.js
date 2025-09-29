@@ -95,7 +95,7 @@ const AuthEmailScreen = () => {
       }
       setLoading(true);
       await firebaseAuth.sendPasswordResetEmail(email.trim());
-      Alert.alert('Password reset email sent');
+      Alert.alert('Password reset',`The email has sent to ${email.trim()}`);
       setMode('login');
     } catch (e) {
       console.error('Reset error', e);

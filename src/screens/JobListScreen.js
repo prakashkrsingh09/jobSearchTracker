@@ -101,7 +101,7 @@ const JobListScreen = () => {
               // Reload jobs after deletion
               await loadJobs();
             } catch (rowDeleteError) {
-              console.error('❌ Error deleting row:', rowDeleteError);
+              console.error('Error deleting row:', rowDeleteError);
               Alert.alert(
                 'Error',
                 'Failed to delete job application. Please try again.',

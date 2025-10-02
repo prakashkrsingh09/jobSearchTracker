@@ -27,7 +27,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({
   logoImage,
   backgroundImage,
   appName = 'Job Search Tracker',
-  tagline = 'Track your career journey',
+  tagline = 'Synchronizes your job search efforts',
 }) => {
   const [fadeAnim] = useState(new Animated.Value(0));
   const [scaleAnim] = useState(new Animated.Value(0.8));

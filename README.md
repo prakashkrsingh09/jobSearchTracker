@@ -169,3 +169,11 @@ For support,
 ---
 
 **Made with ❤️ using React Native and Firebase**
+
+---
+
+### 📚 Technical Overview
+
+For a deeper, engineering-focused explanation of the architecture, data model, and core flows, see:
+
+- [`docs/TechnicalOverview.md`](./docs/TechnicalOverview.md)

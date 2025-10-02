@@ -72,6 +72,9 @@ def enableProguardInReleaseBuilds = false
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
+// Determine if release signing credentials are provided
+def hasReleaseKeys = project.hasProperty('RELEASE_STORE_PASSWORD') && project.hasProperty('RELEASE_KEY_ALIAS') && project.hasProperty('RELEASE_KEY_PASSWORD')
+
 android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -83,7 +86,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
     }
     signingConfigs {
         debug {
@@ -92,15 +95,21 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            // Uses env vars if available, otherwise Gradle -P properties
+            storeFile file('signinKey.jks')
+            storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD") ?: project.findProperty("RELEASE_STORE_PASSWORD")
+            keyAlias System.getenv("ANDROID_KEY_ALIAS") ?: project.findProperty("RELEASE_KEY_ALIAS")
+            keyPassword System.getenv("ANDROID_KEY_PASSWORD") ?: project.findProperty("RELEASE_KEY_PASSWORD")
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            // Use real release signing if credentials exist; otherwise fall back to debug signing
+            signingConfig hasReleaseKeys ? signingConfigs.release : signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
@@ -120,3 +129,19 @@ dependencies {
         implementation jscFlavor
     }
 }
+
+project.ext.react = [
+    enableHermes: true,
+    nodeExecutableAndArgs: ["node"],
+    bundleCommand: "packager",
+    bundleAssetName: "index.android.bundle",
+    bundleInDebug: false,
+    bundleInRelease: true,
+    bundleInStaging: true
+]
+
+// Vector Icons configuration
+project.ext.vectoricons = [
+    iconFontNames: [ 'Ionicons.ttf' ]
+]
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"

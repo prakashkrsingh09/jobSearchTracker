@@ -10,7 +10,7 @@ export const CONFIG = {
   API_TIMEOUT: 10000,
   
   // App Configuration
-  APP_NAME: 'Job Search Tracker',
+  APP_NAME: 'Interview Sync',
   APP_VERSION: '1.0.0',
 };
 

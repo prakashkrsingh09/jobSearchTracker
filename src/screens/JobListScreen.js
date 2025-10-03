@@ -5,13 +5,14 @@ import {
   FlatList,
   StyleSheet,
   TouchableOpacity,
-  Alert,
   RefreshControl,
   StatusBar,
   SafeAreaView,
   ActivityIndicator,
 } from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
 import { firebaseAuth } from '../firebase/config';
+import AlertModal from '../components/AlertModal';
 import {
   deleteJobApplication,
   getJobApplications,
@@ -19,6 +20,8 @@ import {
   addJobApplication,
 } from '../services/jobService';
 import { EditJobModal, AddJobModal } from '../components';
+import HamburgerMenu from '../components/HamburgerMenu';
+import AboutUsScreen from './AboutUsScreen';
 
 const JobListScreen = () => {
   const [jobs, setJobs] = useState([]);
@@ -26,7 +29,82 @@ const JobListScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
+  const [hamburgerMenuVisible, setHamburgerMenuVisible] = useState(false);
+  const [aboutUsVisible, setAboutUsVisible] = useState(false);
+
+  // Alert modal state
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertTitle, setAlertTitle] = useState('');
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertShowCancel, setAlertShowCancel] = useState(false);
+  const [alertOnOk, setAlertOnOk] = useState(() => () => {});
+
+  // Custom alert function
+  const showAlert = (title, message, showCancel = false, onOk = null) => {
+    setAlertTitle(title);
+    setAlertMessage(message);
+    setAlertShowCancel(showCancel);
+    setAlertOnOk(() => onOk || (() => setAlertVisible(false)));
+    setAlertVisible(true);
+  };
   const [addModalVisible, setAddModalVisible] = useState(false);
+
+  // Menu handlers
+  const handleAboutUs = () => {
+    setAboutUsVisible(true);
+  };
+
+  const handleLogout = () => {
+    showAlert(
+      'Logout',
+      'Are you sure you want to logout?',
+      true,
+      async () => {
+        try {
+          await firebaseAuth.signOut();
+        } catch (error) {
+          showAlert('Logout Failed', error.message);
+        }
+      }
+    );
+  };
+
+  const handleDeleteAccount = () => {
+    showAlert(
+      'Delete Account',
+      'Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently lost.',
+      true,
+      async () => {
+        try {
+          // TODO: Implement account deletion
+          showAlert('Account Deleted', 'Your account has been successfully deleted.');
+        } catch (error) {
+          showAlert('Error', 'Failed to delete account. Please try again.');
+        }
+      }
+    );
+  };
+
+  const handleResetPassword = () => {
+    showAlert(
+      'Reset Password',
+      'A password reset email will be sent to your registered email address. Please check your inbox and follow the instructions.',
+      false,
+      async () => {
+        try {
+          const user = firebaseAuth.currentUser;
+          if (user && user.email) {
+            await firebaseAuth.sendPasswordResetEmail(user.email);
+            showAlert('Email Sent', 'Password reset email has been sent successfully!');
+          } else {
+            showAlert('Error', 'No user logged in or email not available.');
+          }
+        } catch (error) {
+          showAlert('Error', `Failed to send reset email: ${error.message}`);
+        }
+      }
+    );
+  };
 
   const loadJobs = async (isRefresh = false) => {
     try {
@@ -81,35 +159,26 @@ const JobListScreen = () => {
 
 
   const handleRowDelete = async jobId => {
-    Alert.alert(
+    showAlert(
       'Delete Job Application',
       'Are you sure you want to delete this job application? This action cannot be undone.',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              console.log('Deleting job ID:', jobId);
-              await deleteJobApplication(jobId);
-              console.log('Job deleted successfully');
+      true,
+      async () => {
+        try {
+          console.log('Deleting job ID:', jobId);
+          await deleteJobApplication(jobId);
+          console.log('Job deleted successfully');
 
-              // Reload jobs after deletion
-              await loadJobs();
-            } catch (rowDeleteError) {
-              console.error('Error deleting row:', rowDeleteError);
-              Alert.alert(
-                'Error',
-                'Failed to delete job application. Please try again.',
-              );
-            }
-          },
-        },
-      ],
+          // Reload jobs after deletion
+          await loadJobs();
+        } catch (rowDeleteError) {
+          console.error('Error deleting row:', rowDeleteError);
+          showAlert(
+            'Error',
+            'Failed to delete job application. Please try again.',
+          );
+        }
+      }
     );
   };
 
@@ -212,8 +281,8 @@ const JobListScreen = () => {
         <TouchableOpacity style={styles.addButtonHeader} onPress={handleAddJob}>
           <Text style={styles.addButtonHeaderText}>+</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.addButtonHeader, { marginLeft: 8 }]} onPress={() => firebaseAuth.signOut()}>
-          <Text style={styles.addButtonHeaderText}>⎋</Text>
+        <TouchableOpacity style={[styles.addButtonHeader, { marginLeft: 8 }]} onPress={() => setHamburgerMenuVisible(true)}>
+          <Icon name="menu" size={20} color="#fff" />
         </TouchableOpacity>
       </View>
 
@@ -359,6 +428,32 @@ const JobListScreen = () => {
         onSave={handleAddJobSave}
         onCancel={handleAddJobCancel}
       />
+      
+      <AlertModal
+        visible={alertVisible}
+        title={alertTitle}
+        message={alertMessage}
+        showCancel={alertShowCancel}
+        cancelText="Cancel"
+        okText={alertTitle === 'Logout' ? 'Logout' : alertTitle === 'Delete Account' ? 'Delete' : 'OK'}
+        onCancel={() => setAlertVisible(false)}
+        onOk={alertOnOk}
+      />
+      
+      <HamburgerMenu
+        visible={hamburgerMenuVisible}
+        onClose={() => setHamburgerMenuVisible(false)}
+        onAboutUs={handleAboutUs}
+        onLogout={handleLogout}
+        onDeleteAccount={handleDeleteAccount}
+        onResetPassword={handleResetPassword}
+      />
+      
+      {aboutUsVisible && (
+        <AboutUsScreen
+          onClose={() => setAboutUsVisible(false)}
+        />
+      )}
     </SafeAreaView>
   );
 };

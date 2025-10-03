@@ -7,8 +7,8 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
+import AlertModal from './AlertModal';
 
 interface JobData {
   company_name: string;
@@ -64,15 +64,31 @@ const AddJobModal: React.FC<AddJobModalProps> = ({
   });
   const [isLoading, setIsLoading] = useState(false);
 
+  // Alert modal state
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertTitle, setAlertTitle] = useState('');
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertShowCancel, setAlertShowCancel] = useState(false);
+  const [alertOnOk, setAlertOnOk] = useState(() => () => {});
+
+  // Custom alert function
+  const showAlert = (title: string, message: string, showCancel = false, onOk = null) => {
+    setAlertTitle(title);
+    setAlertMessage(message);
+    setAlertShowCancel(showCancel);
+    setAlertOnOk(() => onOk || (() => setAlertVisible(false)));
+    setAlertVisible(true);
+  };
+
   const handleSave = async () => {
     try {
       // Validate required fields
       if (!formData.company_name.trim()) {
-        Alert.alert('Validation Error', 'Company name is required');
+        showAlert('Validation Error', 'Company name is required');
         return;
       }
       if (!formData.job_title.trim()) {
-        Alert.alert('Validation Error', 'Job title is required');
+        showAlert('Validation Error', 'Job title is required');
         return;
       }
 
@@ -102,7 +118,7 @@ const AddJobModal: React.FC<AddJobModalProps> = ({
       });
     } catch (error) {
       console.error('Error saving job:', error);
-      Alert.alert('Error', 'Failed to save job. Please try again.');
+      showAlert('Error', 'Failed to save job. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -211,6 +227,15 @@ const AddJobModal: React.FC<AddJobModalProps> = ({
           </TouchableOpacity>
         </View>
       </View>
+      
+      <AlertModal
+        visible={alertVisible}
+        title={alertTitle}
+        message={alertMessage}
+        showCancel={alertShowCancel}
+        onCancel={() => setAlertVisible(false)}
+        onOk={alertOnOk}
+      />
     </Modal>
   );
 };

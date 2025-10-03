@@ -1,7 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
 import { firebaseAuth } from '../firebase/config';
+import AlertModal from '../components/AlertModal';
+import PasswordValidator from '../components/PasswordValidator';
 
 function getFriendlyAuthMessage(code, fallback) {
   switch (code) {
@@ -37,8 +39,21 @@ const AuthEmailScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // no-op wrapper retained for minimal code change; uses Alert natively
-  const showAlert = (title, message) => Alert.alert(title, message);
+  // Alert modal state
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertTitle, setAlertTitle] = useState('');
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertShowCancel, setAlertShowCancel] = useState(false);
+  const [alertOnOk, setAlertOnOk] = useState(() => () => {});
+
+  // Custom alert function
+  const showAlert = (title, message, showCancel = false, onOk = null) => {
+    setAlertTitle(title);
+    setAlertMessage(message);
+    setAlertShowCancel(showCancel);
+    setAlertOnOk(() => onOk || (() => setAlertVisible(false)));
+    setAlertVisible(true);
+  };
 
   // Get responsive styles
   const styles = createResponsiveStyles();
@@ -49,7 +64,15 @@ const AuthEmailScreen = () => {
     return emailRegex.test(value.trim());
   };
 
-  // Password: at least 6 characters, at least one letter and one number
+  // Enhanced password validation with specific feedback
+  const getPasswordValidationMessage = (value) => {
+    if (!value) return 'Password is required';
+    if (value.length < 6) return 'Password must be at least 6 characters long';
+    if (!/(?=.*[A-Za-z])/.test(value)) return 'Password must contain at least one letter';
+    if (!/(?=.*\d)/.test(value)) return 'Password must contain at least one number';
+    return null; // Valid password
+  };
+
   const isValidPassword = (value) => {
     if (!value) return false;
     if (value.length < 6) return false;
@@ -67,11 +90,18 @@ const AuthEmailScreen = () => {
   const handleLogin = async () => {
     try {
       if (!email || !password) {
-        Alert.alert('Please enter email and password');
+        showAlert('Missing Information', 'Please enter email and password');
         return;
       }
-      if (!emailValid) { showAlert('Invalid email address', 'Please enter a valid email.'); return; }
-      if (!passwordValid) { showAlert('Invalid password', 'Use at least 6 characters with letters and numbers.'); return; }
+      if (!emailValid) { 
+        showAlert('Invalid Email', 'Please enter a valid email address.'); 
+        return; 
+      }
+      if (!passwordValid) { 
+        const passwordMessage = getPasswordValidationMessage(password);
+        showAlert('Invalid Password', passwordMessage); 
+        return; 
+      }
       setLoading(true);
       const user = await firebaseAuth.signInWithEmailAndPassword(email.trim(), password);
       console.log('user', user);
@@ -88,7 +118,7 @@ const AuthEmailScreen = () => {
     } catch (e) {
       console.error('Login error', e);
       const code = e?.code || '';
-      Alert.alert('Login failed', getFriendlyAuthMessage(code, e?.message));
+      showAlert('Login Failed', getFriendlyAuthMessage(code, e?.message));
     } finally {
       setLoading(false);
     }
@@ -97,19 +127,20 @@ const AuthEmailScreen = () => {
   const handleSignup = async () => {
     try {
       if (!email || !password) {
-        Alert.alert('Please enter email and password');
+        showAlert('Missing Information', 'Please enter email and password');
         return;
       }
       if (!emailValid) {
-        Alert.alert('Invalid email address', 'Please enter a valid email.');
+        showAlert('Invalid Email', 'Please enter a valid email address.');
         return;
       }
       if (!isValidPassword(password)) {
-        Alert.alert('Invalid password', 'Use at least 6 characters with letters and numbers.');
+        const passwordMessage = getPasswordValidationMessage(password);
+        showAlert('Invalid Password', passwordMessage);
         return;
       }
       if (password !== confirmPassword) {
-        Alert.alert('Passwords do not match');
+        showAlert('Password Mismatch', 'Passwords do not match. Please try again.');
         return;
       }
       setLoading(true);
@@ -117,7 +148,7 @@ const AuthEmailScreen = () => {
     } catch (e) {
       console.error('Signup error', e);
       const code = e?.code || '';
-      Alert.alert('Signup failed', getFriendlyAuthMessage(code, e?.message));
+      showAlert('Signup Failed', getFriendlyAuthMessage(code, e?.message));
     } finally {
       setLoading(false);
     }
@@ -126,21 +157,21 @@ const AuthEmailScreen = () => {
   const handleReset = async () => {
     try {
       if (!email) {
-        Alert.alert('Please enter your email');
+        showAlert('Missing Email', 'Please enter your email address');
         return;
       }
       if (!emailValid) {
-        Alert.alert('Invalid email address', 'Please enter a valid email.');
+        showAlert('Invalid Email', 'Please enter a valid email address.');
         return;
       }
       setLoading(true);
       await firebaseAuth.sendPasswordResetEmail(email.trim());
-      Alert.alert('Password reset',`The email has sent to ${email.trim()}`);
+      showAlert('Password Reset', `Password reset email has been sent to ${email.trim()}`);
       setMode('login');
     } catch (e) {
       console.error('Reset error', e);
       const code = e?.code || '';
-      Alert.alert('Reset failed', getFriendlyAuthMessage(code, e?.message));
+      showAlert('Reset Failed', getFriendlyAuthMessage(code, e?.message));
     } finally {
       setLoading(false);
     }
@@ -164,7 +195,7 @@ const AuthEmailScreen = () => {
           onChangeText={setEmail}
           onBlur={() => {
             if (email && !emailValid) {
-              Alert.alert('Invalid email address', 'Please enter a valid email.');
+              showAlert('Invalid Email', 'Please enter a valid email address.');
             }
           }}
         />
@@ -181,7 +212,8 @@ const AuthEmailScreen = () => {
                 onChangeText={setPassword}
                 onBlur={() => {
                   if (password && !isValidPassword(password)) {
-                    Alert.alert('Invalid password', 'Use at least 6 characters with letters and numbers.');
+                    const passwordMessage = getPasswordValidationMessage(password);
+                    showAlert('Invalid Password', passwordMessage);
                   }
                 }}
               />
@@ -189,6 +221,7 @@ const AuthEmailScreen = () => {
                 <Icon name={showPassword ? 'eye-off' : 'eye'} size={22} color="#6b7280" />
               </TouchableOpacity>
             </View>
+            <PasswordValidator password={password} visible={mode === 'signup' && password.length > 0} />
           </>
         )}
 
@@ -204,7 +237,7 @@ const AuthEmailScreen = () => {
                 onChangeText={setConfirmPassword}
                 onBlur={() => {
                   if (confirmPassword && password !== confirmPassword) {
-                    Alert.alert('Passwords do not match');
+                    showAlert('Password Mismatch', 'Passwords do not match. Please try again.');
                   }
                 }}
               />
@@ -257,6 +290,15 @@ const AuthEmailScreen = () => {
           )}
         </View>
       </View>
+      
+      <AlertModal
+        visible={alertVisible}
+        title={alertTitle}
+        message={alertMessage}
+        showCancel={alertShowCancel}
+        onCancel={() => setAlertVisible(false)}
+        onOk={alertOnOk}
+      />
     </KeyboardAvoidingView>
   );
 };

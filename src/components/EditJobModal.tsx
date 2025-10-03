@@ -7,8 +7,8 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
+import AlertModal from './AlertModal';
 
 interface JobData {
   id?: string;
@@ -76,6 +76,22 @@ const EditJobModal: React.FC<EditJobModalProps> = ({
   const [originalData, setOriginalData] = useState<JobData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Alert modal state
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertTitle, setAlertTitle] = useState('');
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertShowCancel, setAlertShowCancel] = useState(false);
+  const [alertOnOk, setAlertOnOk] = useState(() => () => {});
+
+  // Custom alert function
+  const showAlert = (title: string, message: string, showCancel = false, onOk = null) => {
+    setAlertTitle(title);
+    setAlertMessage(message);
+    setAlertShowCancel(showCancel);
+    setAlertOnOk(() => onOk || (() => setAlertVisible(false)));
+    setAlertVisible(true);
+  };
+
   // Update form data when jobData changes
   useEffect(() => {
     if (jobData) {
@@ -141,7 +157,7 @@ const EditJobModal: React.FC<EditJobModalProps> = ({
       await onSave(originalData.id, changes);
     } catch (error) {
       console.error('Error saving job:', error);
-      Alert.alert('Error', 'Failed to save changes. Please try again.');
+      showAlert('Error', 'Failed to save changes. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -224,6 +240,15 @@ const EditJobModal: React.FC<EditJobModalProps> = ({
           </TouchableOpacity>
         </View>
       </View>
+      
+      <AlertModal
+        visible={alertVisible}
+        title={alertTitle}
+        message={alertMessage}
+        showCancel={alertShowCancel}
+        onCancel={() => setAlertVisible(false)}
+        onOk={alertOnOk}
+      />
     </Modal>
   );
 };

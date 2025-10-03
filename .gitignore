@@ -32,7 +32,10 @@ local.properties
 *.hprof
 .cxx/
 *.keystore
-!debug.keystore
+# Do not track debug keystore
+android/app/debug.keystore
+# Do not track local signing key
+android/app/signinKey.jks
 .kotlin/
 
 # node.js
